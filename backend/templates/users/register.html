@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center">
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      Buat Akun Baru
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Sudah punya akun? 
+      <a href="{% url 'users:login' %}" class="font-medium text-blue-600 hover:text-blue-500">
+        Masuk disini
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+    <div class="bg-white py-8 px-6 shadow-lg rounded-xl sm:px-10 border border-gray-100">
+      <form class="space-y-5" method="POST" novalidate>
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+          {% for error in form.non_field_errors %}
+            <p class="text-red-700 text-sm">{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Username Field -->
+        <div>
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Username
+        </label>
+        <div class="mt-1">
+            <input id="{{ form.username.id_for_label }}" name="username" type="text" required
+                value="{{ form.username.value|default_if_none:'' }}"
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        {% if form.username.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+        {% else %}
+            <p class="mt-1 text-xs text-gray-500">Gunakan nama unik yang mudah diingat</p>
+        {% endif %}
+        </div>
+
+        <!-- Email Field -->
+        <div>
+        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Email
+        </label>
+        <div class="mt-1">
+            <input id="{{ form.email.id_for_label }}" name="email" type="email" required
+                value="{{ form.email.value|default_if_none:'' }}"
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        </div>
+        {% if form.email.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+        {% endif %}
+        </div>
+
+        <!-- Password Field -->
+        <div>
+        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Password
+        </label>
+        <div class="relative mt-1">
+            <input id="{{ form.password1.id_for_label }}" name="password1" type="password" required
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10">
+            
+            <!-- Toggle Button -->
+            <button type="button" onclick="togglePassword('id_password1')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500">
+            <svg id="eye-icon-id_password1" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"/>
+            </svg>
+            </button>
+        </div>
+        {% if form.password1.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+        {% else %}
+            <ul class="mt-1 text-xs text-gray-500 list-disc pl-5 space-y-1">
+            <li>Minimal 8 karakter</li>
+            </ul>
+        {% endif %}
+        </div>
+
+        <!-- Password Confirmation -->
+        <div>
+        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+            Konfirmasi Password
+        </label>
+        <div class="relative mt-1">
+            <input id="{{ form.password2.id_for_label }}" name="password2" type="password" required
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10">
+
+            <!-- Toggle Button -->
+            <button type="button" onclick="togglePassword('id_password2')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500">
+            <svg id="eye-icon-id_password2" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"/>
+            </svg>
+            </button>
+        </div>
+        {% if form.password2.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+        {% endif %}
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input id="terms" name="terms" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" required>
+          </div>
+          <div class="ml-3 text-sm">
+            <label for="terms" class="font-medium text-gray-700">
+              Saya menyetujui <a href="#" class="text-blue-600 hover:text-blue-500">Syarat & Ketentuan</a>
+            </label>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+            Daftar Sekarang
+          </button>
+        </div>
+      </form>
+
+      <!-- Social Login Divider -->
+      <div class="mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">
+              Atau daftar dengan
+            </span>
+          </div>
+        </div>
+
+        <!-- Social Login Buttons -->
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <div>
+            <a href="#"
+               class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">Sign in with Google</span>
+              <img class="h-5 w-5" src="{% static 'images/google.png' %}" alt="Google">
+            </a>
+          </div>
+          <div>
+            <a href="#"
+               class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">Sign in with GitHub</span>
+              <img class="h-5 w-5" src="{% static 'images/github.png' %}" alt="GitHub">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(`eye-icon-${inputId}`);
+    if (input.type === "password") {
+      input.type = "text";
+      icon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.158-3.362M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3l18 18"/>
+      `;
+    } else {
+      input.type = "password";
+      icon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"/>
+      `;
+    }
+  }
+</script>
+
+{% endblock %}

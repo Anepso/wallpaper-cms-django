@@ -1,0 +1,37 @@
+<header class="bg-white shadow sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="{% url 'wallpapers:home' %}" class="text-2xl font-bold text-blue-600 flex-shrink-0">
+      WallpaperCMS
+    </a>
+
+    <!-- Menu + Search -->
+    <div class="flex items-center gap-4 flex-wrap md:flex-nowrap">
+      <!-- Search -->
+      <form action="{% url 'wallpapers:search' %}" method="get" class="hidden md:block">
+        <input type="text" name="q" placeholder="Cari..."
+          class="w-[160px] px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring focus:border-blue-300" />
+      </form>
+      <!-- Nav Menu -->
+      <nav class="flex gap-4 text-sm items-center">
+        <a href="{% url 'wallpapers:list' %}" class="text-gray-700 hover:text-blue-600">Wallpaper</a>
+        <a href="{% url 'wallpapers:tentang' %}" class="text-gray-700 hover:text-blue-600">Tentang Kami</a>
+
+        {% if user.is_authenticated %}
+          <a href="{% url 'users:profile' %}" class="text-gray-700 hover:text-blue-600">Profil</a>
+          {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'users:dashboard' %}" class="text-gray-700 hover:text-blue-600">Dashboard</a>
+          {% endif %}
+          <form method="post" action="{% url 'users:logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-red-600 font-semibold">Logout</button>
+          </form>
+        {% else %}
+          <a href="{% url 'users:login' %}" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
+        {% endif %}
+      </nav>
+    </div>
+</header>
+
+

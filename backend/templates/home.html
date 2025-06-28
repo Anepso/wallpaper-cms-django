@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Beranda - WallpaperCMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Background Image -->
+<div class="relative bg-cover bg-center h-screen flex items-center" 
+     style="background-image: url('{% static 'images/nature-bg.jpg' %}')">
+  <!-- Overlay for better text readability -->
+  <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+  
+  <!-- Content Container -->
+  <div class="relative z-10 w-full text-center px-4">
+    <div class="container mx-auto">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white">Temukan Wallpaper Terbaik untuk Perangkatmu</h1>
+      <p class="text-lg text-gray-200 mb-8 max-w-2xl mx-auto">Eksplorasi koleksi wallpaper HD, aesthetic, dan minimalis</p>
+      <a href="{% url 'wallpapers:list' %}"
+         class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition duration-300 transform hover:scale-105">
+        Lihat Semua Wallpaper
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Wallpaper Terbaru -->
+<section class="py-12 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Wallpaper Terbaru</h2>
+    </div>
+    
+    <div class="overflow-x-auto whitespace-nowrap py-2">
+      <div class="inline-flex space-x-4 gap-1">
+        {% for wallpaper in latest_wallpapers %}
+          <a href="{% url 'wallpapers:detail' wallpaper.slug %}" class="w-48 flex-shrink-0">
+            <div class="aspect-square overflow-hidden rounded-lg shadow">
+              <img 
+                src="{% if wallpaper.thumbnail %}{{ wallpaper.thumbnail.url }}{% else %}{{ wallpaper.image.url }}{% endif %}" 
+                alt="{{ wallpaper.title }}"
+                class="object-cover w-full h-full transition-transform hover:scale-105 duration-300">
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Kategori Populer -->
+<section class="py-12 bg-gray-50">
+  <div class="container mx-auto px-4">
+    <h2 class="text-2xl md:text-3xl font-bold mb-6 text-gray-800">Kategori Populer</h2>
+    <div class="flex flex-wrap gap-3">
+      {% for category in popular_categories %}
+      <a href="{% url 'wallpapers:category' category.slug %}" 
+        class="bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md hover:bg-blue-50 text-gray-800 font-medium text-sm transition">
+        {{ category.name }} ({{ category.wallpaper_count }})
+      </a>
+      {% empty %}
+      <p class="text-gray-500">Belum ada kategori tersedia</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Untuk memastikan gambar mengisi container persegi */
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+</style>
+
+<!-- Script lightbox -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+{% endblock %}

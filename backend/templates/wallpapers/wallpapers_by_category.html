@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} - Wallpaper{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800">Kategori: {{ category.name }}</h1>
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    {% for wallpaper in wallpapers %}
+    <a href="{% url 'wallpapers:detail' wallpaper.slug %}">
+      <div class="aspect-square overflow-hidden rounded-lg shadow">
+        <img src="{% if wallpaper.thumbnail %}{{ wallpaper.thumbnail.url }}{% else %}{{ wallpaper.image.url }}{% endif %}" 
+        alt="{{ wallpaper.title }}" 
+        class="w-full h-full object-cover">
+      </div>
+    </a>
+    {% empty %}
+    <p class="text-gray-500">Belum ada wallpaper dalam kategori ini.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

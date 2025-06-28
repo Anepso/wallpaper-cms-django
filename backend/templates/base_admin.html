@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Panel Admin{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex flex-col items-center py-6 space-y-6">
+      
+      <!-- Logo -->
+      <div class="text-xl font-bold tracking-wide text-blue-600">PANEL ADMIN</div>
+ 
+      <div class="relative flex flex-col items-center">
+        <!-- Tombol edit -->
+        <a href="{% url 'users:edit_profile' %}" class="absolute top-0 right-0 transform translate-x-2 -translate-y-2 bg-white p-1 rounded-full shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-700 hover:text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 14v-1.586l-1.293 1.293a1 1 0 001.414 1.414L5 14z" />
+          </svg>
+        </a>
+
+        <!-- Avatar -->
+        {% if request.user.profile_picture %}
+          <img src="{{ request.user.profile_picture.url }}" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-blue-500 object-cover">
+        {% else %}
+          <img src="https://i.pravatar.cc/100?u={{ request.user.username }}" alt="Avatar" class="w-16 h-16 rounded-full border-2 border-blue-500 object-cover">
+        {% endif %}
+        
+        <p class="mt-2 font-semibold">
+          Welcome,
+          {% if request.user.first_name or request.user.last_name %}
+            {{ request.user.first_name }} {{ request.user.last_name }}
+          {% else %}
+            {{ request.user.username }}
+          {% endif %}
+        </p>
+        <span class="text-xs text-gray-500 dark:text-gray-400">Administrator</span>
+      </div>
+
+      <!-- Menu -->
+      <nav class="w-full px-6">
+        <ul class="space-y-2 text-sm">
+          <!-- Menu ke halaman home -->
+            <li>
+              <a href="{% url 'wallpapers:home' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+                <span class="material-icons mr-2">home</span>
+                <span>Beranda</span>
+              </a>            
+            </li>
+
+          <li>
+            <a href="{% url 'users:dashboard' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">dashboard</span> Dasboard
+            </a>
+          </li>
+
+          <!-- Wallpaper -->
+          <li class="mt-4 uppercase text-xs text-gray-500 dark:text-gray-400">Wallpaper</li>
+          <li>
+            <a href="{% url 'wallpapers:wallpaper_admin_list' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">image</span> Daftar Wallpaper
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'wallpapers:upload' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">add_photo_alternate</span> Tambah Wallpaper
+            </a>
+          </li>
+
+          <!-- Kategori -->
+          <li class="mt-4 uppercase text-xs text-gray-500 dark:text-gray-400">Kategori</li>
+          <li>
+            <a href="{% url 'categories:list' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">category</span> Daftar Kategori
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'categories:add' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">add</span> Tambah Kategori
+            </a>
+          </li>
+
+          <!-- Pengguna -->
+          <li class="mt-4 uppercase text-xs text-gray-500 dark:text-gray-400">Pengguna</li>
+          <li>
+            <a href="{% url 'users:user-list' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">people</span> Daftar Pengguna
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'users:user-add' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">person_add</span> Tambah Pengguna
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'users:user-banned' %}" class="flex items-center px-4 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-700 transition">
+              <span class="material-icons mr-2">block</span> Pengguna Terbanned
+            </a>
+          </li><br>
+
+          <!-- Dark mode toggle -->
+          <div class="mt-auto px-6 w-full">
+            <div class="flex items-center justify-between text-sm">
+            <span>Mode Gelap</span>
+              <button onclick="document.documentElement.classList.toggle('dark')" class="bg-gray-300 dark:bg-blue-700 w-10 h-5 rounded-full relative">
+                <div class="bg-white w-4 h-4 rounded-full shadow absolute left-1 top-0.5 dark:translate-x-5 transition-transform"></div>
+              </button>
+            </div>
+          </div><br><br>
+
+          <!-- Logout -->
+          <li class="mt-6">
+            <a href="{% url 'users:logout' %}" class="flex items-center text-red-600 hover:underline">
+              <span class="material-icons mr-2">logout</span> Logout
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Konten Utama -->
+    <main class="flex-1 p-6">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends 'home.html' %}
+{% load form_tags %}
+{% block title %}Edit Profil{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-10 px-4">
+    <div class="max-w-xl mx-auto bg-white rounded-xl shadow-md p-8">
+        <h1 class="text-2xl font-bold mb-6 text-center">Edit Profil</h1>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Username</label>
+                {{ form.username|add_class:"w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Email</label>
+                {{ form.email|add_class:"w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <!-- First Name -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Nama Depan</label>
+                {{ form.first_name|add_class:"w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <!-- Last Name -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Nama Belakang</label>
+                {{ form.last_name|add_class:"w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Bio</label>
+                {{ form.bio|add_class:"w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <!-- Profile Picture -->
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Foto Profil Baru</label>
+                {{ form.profile_picture|add_class:"w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" }}
+            </div>
+
+            <!-- Submit -->
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}Kelola Koleksi Wallpaper{% endblock %}
+
+{% block content %}
+<!-- Filter & Search -->
+<form method="get" class="mb-6 flex flex-wrap gap-2 items-center">
+  <input type="text" name="q" placeholder="Cari wallpaper..." value="{{ request.GET.q }}"
+         class="border p-2 rounded w-full sm:w-auto flex-1">
+  <select name="category" class="border p-2 rounded w-full sm:w-auto">
+    <option value="">Semua Kategori</option>
+    {% for cat in categories %}
+      <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Cari</button>
+</form>
+
+<!-- Form Delete Multiple -->
+<form method="POST" action="{% url 'wallpapers:delete_multiple' %}">
+  {% csrf_token %}
+  <div class="overflow-x-auto bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-3">
+            <input type="checkbox" id="select-all" class="text-blue-600 rounded focus:ring-blue-500">
+          </th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Gambar</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Judul</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Kategori</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Uploader</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Tanggal</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for wallpaper in wallpapers %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            {% if user.is_staff or wallpaper.uploader == user %}
+            <input type="checkbox" name="selected_wallpapers" value="{{ wallpaper.id }}"
+                   class="checkbox-select text-blue-600 rounded focus:ring-blue-500">
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <img src="{% if wallpaper.thumbnail and wallpaper.thumbnail.url %}{{ wallpaper.thumbnail.url }}{% else %}{{ wallpaper.image.url }}{% endif %}"
+                alt="{{ wallpaper.title }}"
+                class="w-20 h-20 object-cover rounded shadow border border-gray-300">
+          </td>
+          <td class="px-4 py-3 text-sm font-semibold text-gray-800">
+            {{ wallpaper.title }}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-600">
+            {{ wallpaper.category.name|default:"-" }}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-700">
+            {{ wallpaper.uploader.username }}
+            {% if wallpaper.uploader.role == 'admin' %}
+            <span class="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Admin</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-500">
+            {{ wallpaper.created_at|date:"d M Y" }}
+          </td>
+          <td class="px-4 py-3 text-sm">
+            {% if user.is_staff or wallpaper.uploader == user %}
+            <button type="button" onclick="openEditModal({{ wallpaper.id }}, '{{ wallpaper.title|escapejs }}', '{{ wallpaper.category.id }}')"
+               class="text-blue-600 hover:underline text-sm">Edit</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-gray-500 px-4 py-6">Tidak ada wallpaper ditemukan.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if wallpapers %}
+  <div class="mt-4 flex justify-between items-center bg-gray-100 px-4 py-3 rounded shadow">
+    <div id="selected-count" class="text-sm text-gray-600">0 dipilih</div>
+    <button type="submit" id="delete-button" class="bg-red-600 text-white px-4 py-2 rounded disabled:opacity-50" disabled>
+      Hapus yang Dipilih
+    </button>
+  </div>
+  {% endif %}
+</form>
+
+<!-- Pagination -->
+<div class="mt-6">
+  {% if is_paginated %}
+    <div class="flex justify-center gap-2">
+      {% if page_obj.has_previous %}
+        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ page_obj.previous_page_number }}" class="text-blue-600">← Prev</a>
+      {% endif %}
+      <span class="font-semibold">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ page_obj.next_page_number }}" class="text-blue-600">Next →</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 hidden flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Edit Wallpaper</h2>
+    <form id="editForm" method="post" action="" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="wallpaper_id" id="edit-wallpaper-id">
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Judul</label>
+        <input type="text" name="title" id="edit-title"
+               class="w-full border px-3 py-2 rounded focus:outline-none focus:ring" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Kategori</label>
+        <select name="category" id="edit-category"
+                class="w-full border px-3 py-2 rounded focus:outline-none focus:ring">
+          {% for cat in categories %}
+          <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeEditModal()" class="text-gray-600 hover:underline">Batal</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JS -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const checkboxes = document.querySelectorAll('.checkbox-select');
+  const deleteBtn = document.getElementById('delete-button');
+  const selectedCount = document.getElementById('selected-count');
+  const selectAll = document.getElementById('select-all');
+
+  function updateUI() {
+    const selected = document.querySelectorAll('.checkbox-select:checked').length;
+    selectedCount.textContent = `${selected} dipilih`;
+    deleteBtn.disabled = selected === 0;
+
+    // Update "select all" checkbox
+    const total = document.querySelectorAll('.checkbox-select').length;
+    selectAll.checked = selected === total;
+  }
+
+  checkboxes.forEach(cb => cb.addEventListener('change', updateUI));
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      const checked = this.checked;
+      checkboxes.forEach(cb => cb.checked = checked);
+      updateUI();
+    });
+  }
+});
+
+function openEditModal(id, title, categoryId) {
+  document.getElementById('edit-wallpaper-id').value = id;
+  document.getElementById('edit-title').value = title;
+  document.getElementById('edit-category').value = categoryId;
+  document.getElementById('editForm').action = `/wallpapers/wallpapers/edit/${id}/`;
+  document.getElementById('editModal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

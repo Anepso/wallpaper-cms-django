@@ -1,0 +1,62 @@
+{% extends 'home.html' %}
+{% block title %}Profil Pengguna{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-10 flex justify-center">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 relative">
+
+        <!-- Tombol Edit -->
+        <div class="absolute top-4 right-4 space-x-2">
+            <a href="{% url 'users:edit_profile' %}" class="text-gray-700 hover:text-blue-600 text-sm font-semibold">
+                ✏️ Edit Profile
+            </a>
+        </div>
+
+        <!-- Avatar dan Nama Lengkap -->
+        <div class="flex items-center space-x-4 mb-8">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}?v={{ user.last_login|date:'U' }}" alt="Avatar"
+                     class="w-16 h-16 rounded-full border-2 border-blue-500 object-cover">
+            {% else %}
+                <img src="https://i.pravatar.cc/100?u={{ user.username }}" alt="Avatar"
+                     class="w-16 h-16 rounded-full border-2 border-blue-500 object-cover">
+            {% endif %}
+
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h1>
+                <p class="text-gray-500 text-sm">Selamat datang, {{ user.username }}</p>
+            </div>
+        </div>
+
+        <!-- Info Akun -->
+        <div class="space-y-6">
+            <div>
+                <label class="block text-gray-600 font-medium">Username:</label>
+                <p class="text-lg text-gray-900">{{ user.username }}</p>
+            </div>
+
+            <div>
+                <label class="block text-gray-600 font-medium">Email:</label>
+                <p class="text-lg text-gray-900">
+                    {% if user.email %}
+                        {{ user.email }}
+                    {% else %}
+                        <span class="text-gray-400 italic">Email belum diisi</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-gray-600 font-medium">Bio:</label>
+                <p class="text-gray-700">
+                    {% if user.bio %}
+                        {{ user.bio }}
+                    {% else %}
+                        <span class="text-gray-400 italic">Belum ada bio</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

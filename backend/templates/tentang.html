@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Tentang Kami - WallpaperCMS{% endblock %}
+
+{% block content %}
+<section class="bg-white py-12">
+  <div class="container mx-auto px-4 max-w-4xl">
+    <div class="text-center mb-10">
+      <img src="#" alt="Logo WallpaperCMS" class="mx-auto w-24 h-24 mb-4">
+      <h1 class="text-3xl font-bold text-gray-800">Tentang WallpaperCMS</h1>
+      <p class="text-gray-600 mt-2">Platform berbagi wallpaper berkualitas tinggi</p>
+    </div>
+
+    <div class="text-gray-700 space-y-6">
+      <p>
+        <strong>WallpaperCMS</strong> adalah platform berbasis web untuk berbagi wallpaper yang indah dan berkualitas tinggi dari berbagai kategori.
+        Dibangun dengan Django dan Tailwind CSS, sistem ini dirancang untuk memberikan pengalaman eksplorasi visual yang menyenangkan dan efisien.
+      </p>
+
+      <p>Fitur utama kami:</p>
+      <ul class="list-disc list-inside ml-4">
+        <li>Upload wallpaper dengan tag dan kategori</li>
+        <li>Admin dashboard untuk pengelolaan konten</li>
+        <li>UI responsif untuk semua perangkat</li>
+        <li>Pencarian dan filter berdasarkan kategori/tag</li>
+      </ul>
+
+      <hr class="my-6 border-gray-300">
+
+      <h2 class="text-xl font-semibold text-gray-800">Tim Kami</h2>
+      <ul class="list-disc list-inside ml-4">
+        <li><strong>AnepsSm</strong> — Pengembang Backend & Desainer Database</li>
+        <li><strong>AnepsSm</strong> — Frontend & UI/UX</li>
+        <li><strong>Lorem ipsum</strong> — DevOps & Deployment</li>
+      </ul>
+
+      <hr class="my-6 border-gray-300">
+
+      <h2 class="text-xl font-semibold text-gray-800">Hubungi Kami</h2>
+      <p>Jika Anda memiliki pertanyaan, saran, atau ingin berkontribusi, silakan hubungi kami melalui:</p>
+      <ul class="list-inside list-disc ml-4">
+        <li>Email: <a href="mailto:support@wallpapercms.com" class="text-blue-600 hover:underline">support@wallpapercms.com</a></li>
+        <li>Instagram: <a href="https://instagram.com/wallpapercms" target="_blank" class="text-blue-600 hover:underline">@wallpapercms</a></li>
+        <li>GitHub: <a href="https://github.com/anepSomeone/wallpapercms" target="_blank" class="text-blue-600 hover:underline">github.com/anepSomeone/wallpapercms</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

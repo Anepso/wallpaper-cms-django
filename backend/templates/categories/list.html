@@ -1,0 +1,38 @@
+{% extends 'base_admin.html' %}
+{% block title %}Daftar Kategori{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Semua Kategori</h1>
+        <a href="{% url 'categories:add' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + Tambah Kategori
+        </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {% for category in categories %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+            <a href="{% url 'categories:detail' category.slug %}">
+                {% if category.thumbnail %}
+                    <img src="{{ category.thumbnail.url }}" alt="{{ category.name }}" class="w-full h-32 object-cover">
+                {% else %}
+                    <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-400">No thumbnail</span>
+                    </div>
+                {% endif %}
+            </a>
+            <div class="p-3">
+                <h3 class="font-semibold text-center">{{ category.name }}</h3>
+                <div class="flex justify-center mt-2 space-x-2">
+                    <a href="{% url 'categories:edit' category.slug %}" class="text-blue-500 text-sm">Edit</a>
+                    <a href="{% url 'categories:delete' category.slug %}" class="text-red-500 text-sm">Hapus</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-center py-8 text-gray-500">Belum ada kategori</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

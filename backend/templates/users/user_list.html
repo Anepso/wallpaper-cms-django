@@ -1,0 +1,48 @@
+{% extends 'base_admin.html' %}
+{% block title %}Daftar Pengguna{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-10">
+    <h1 class="text-2xl font-bold mb-4">Daftar Pengguna</h1>
+    <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
+        <thead class="bg-gray-200 text-gray-600">
+            <tr>
+                <th class="py-2 px-4 text-left">Username</th>
+                <th class="py-2 px-4 text-left">Email</th>
+                <th class="py-2 px-4 text-left">Status</th>
+                <th class="py-2 px-4 text-left">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr class="border-b">
+                <td class="py-2 px-4">{{ user.username }}</td>
+                <td class="py-2 px-4">{{ user.email }}</td>
+                <td class="py-2 px-4">
+                    {% if user.is_active %}
+                        <span class="text-green-600 font-semibold">Aktif</span>
+                    {% else %}
+                        <span class="text-red-600 font-semibold">Nonaktif</span>
+                    {% endif %}
+                </td>
+                <td class="py-2 px-4 space-x-2">
+                    <form action="{% url 'users:toggle-user-status' user.id %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-sm text-white px-3 py-1 rounded
+                            {% if user.is_active %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %}">
+                            {% if user.is_active %}Ban{% else %}Aktifkan{% endif %}
+                        </button>
+                    </form>
+                    <!-- Optional: Link ke edit profile user -->
+                    <a href="{% url 'users:profile' %}?user_id={{ user.id }}" class="text-sm text-blue-600 hover:underline">Lihat</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="py-4 text-center text-gray-500">Tidak ada pengguna.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

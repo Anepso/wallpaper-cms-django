@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Koleksi Wallpaper{% endblock %}
+
+{% block content %}
+<!-- Grid Wallpaper Only -->
+<div class="px-4 sm:px-8 mt-6"> 
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+    {% for wallpaper in wallpapers %}
+      <div class="overflow-hidden rounded shadow">
+        <a href="{% url 'wallpapers:detail' wallpaper.slug %}" class="block">
+          <div class="relative group overflow-hidden rounded shadow">
+            <img src="{{ wallpaper.image.url }}"
+                alt="{{ wallpaper.title }}"
+                loading="lazy"
+                class="w-full h-48 sm:h-56 object-cover object-center
+                hover:scale-90 hover:shadow-2xl hover:shadow-blue-500/50
+                transition duration-300 rounded">
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <p class="text-center text-gray-500 col-span-full">Tidak ada wallpaper ditemukan.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-6">
+    {% if is_paginated %}
+      <div class="flex justify-center items-center gap-4 text-sm">
+        {% if page_obj.has_previous %}
+          <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ page_obj.previous_page_number }}"
+            class="text-blue-600 hover:underline">← Sebelumnya</a>
+        {% endif %}
+        <span class="font-medium text-gray-700">Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ page_obj.next_page_number }}"
+            class="text-blue-600 hover:underline">Berikutnya →</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Wallpaper Categories</h1>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for category in categories %}
+        <a href="{% url 'wallpapers:category_detail' category.slug %}" class="group">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                {% if category.thumbnail %}
+                <img src="{{ category.thumbnail.url }}" alt="{{ category.name }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="bg-gray-200 w-full h-48 flex items-center justify-center">
+                    <span class="text-gray-500">No thumbnail</span>
+                </div>
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg group-hover:text-blue-600">{{ category.name }}</h3>
+                    <p class="text-gray-600 text-sm mt-1">{{ category.wallpaper_set.count }} wallpapers</p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

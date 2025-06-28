@@ -1,0 +1,25 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-md">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-red-600 mb-4">Hapus Kategori</h2>
+        <p class="mb-6">Anda yakin ingin menghapus kategori <strong>"{{ category.name }}"</strong>? 
+        Semua wallpaper dalam kategori ini akan kehilangan kategori terkait.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'categories:list' %}" 
+                   class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+                    Batal
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                    Ya, Hapus
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
