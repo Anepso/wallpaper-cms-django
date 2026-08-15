@@ -3,8 +3,45 @@
 
 {% block content %}
 <div class="container mx-auto py-10 px-4">
-  <h1 class="text-2xl font-bold mb-4 text-gray-800">Hasil untuk "{{ query }}"</h1>
-  
+  <h1 class="text-2xl font-bold mb-4 text-gray-800">
+    {% if query %}Hasil untuk "{{ query }}"{% else %}Pencarian Wallpaper{% endif %}
+  </h1>
+
+  <!-- Filter Lanjutan: Orientasi & Waktu -->
+  <form method="get" action="{% url 'wallpapers:search' %}"
+        class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-8 flex flex-wrap items-end gap-3">
+    {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+    <div>
+      <label for="orientation" class="block text-xs font-semibold text-gray-600 mb-1">Orientasi</label>
+      <select id="orientation" name="orientation"
+              class="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring focus:border-blue-300">
+        <option value="">Semua Orientasi</option>
+        <option value="landscape" {% if orientation == 'landscape' %}selected{% endif %}>Landscape</option>
+        <option value="portrait" {% if orientation == 'portrait' %}selected{% endif %}>Portrait</option>
+        <option value="square" {% if orientation == 'square' %}selected{% endif %}>Square</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="date_range" class="block text-xs font-semibold text-gray-600 mb-1">Waktu</label>
+      <select id="date_range" name="date_range"
+              class="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring focus:border-blue-300">
+        <option value="">Semua Waktu</option>
+        <option value="terbaru" {% if date_range == 'terbaru' %}selected{% endif %}>Hari Ini</option>
+        <option value="minggu_ini" {% if date_range == 'minggu_ini' %}selected{% endif %}>Minggu Ini</option>
+        <option value="bulan_ini" {% if date_range == 'bulan_ini' %}selected{% endif %}>Bulan Ini</option>
+      </select>
+    </div>
+
+    <button type="submit"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition">
+      Terapkan Filter
+    </button>
+    <a href="{% url 'wallpapers:search' %}"
+       class="px-4 py-2 text-sm text-gray-600 hover:text-blue-600 transition">Reset</a>
+  </form>
+
   {% if wallpapers %}
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
     {% for wallpaper in wallpapers %}

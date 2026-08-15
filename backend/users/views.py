@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 from wallpapers.models import Wallpaper
 from .forms import CustomUserCreationForm, CustomUserChangeForm
@@ -104,19 +103,31 @@ def custom_login(request):
     
     return render(request, 'users/login.html', {'form': form})
 
-# Daftar semua pengguna (khusus staf/admin)
-@staff_member_required
+# Daftar semua pengguna (khusus manajer)
+@manager_required
 def user_list(request):
-    users = User.objects.all()
+    users = User.objects.order_by('username')
     return render(request, 'users/user_list.html', {'users': users})
 
 # Tambah pengguna
-@staff_member_required
+@manager_required
 def user_add(request):
-    return render(request, 'users/user_add.html')
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            role = request.POST.get('role')
+            if role in ('admin', 'user'):
+                user.role = role
+            user.save()
+            messages.success(request, f'Pengguna "{user.username}" berhasil ditambahkan!')
+            return redirect('users:user-list')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'users/user_add.html', {'form': form})
 
 # Daftar pengguna yang diblokir
-@staff_member_required
+@manager_required
 def user_banned(request):
     banned_users = User.objects.filter(is_active=False)
     return render(request, 'users/user_banned.html', {'banned_users': banned_users})

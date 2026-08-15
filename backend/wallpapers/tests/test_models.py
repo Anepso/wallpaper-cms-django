@@ -80,6 +80,45 @@ class WallpaperModelTests(MediaTestCase):
         self.assertTrue(wallpaper.thumbnail)
         self.assertTrue(wallpaper.thumbnail.storage.exists(wallpaper.thumbnail.name))
 
+    def test_thumbnail_stored_in_clean_thumbnails_folder(self):
+        wallpaper = create_wallpaper(title='Path Check')
+        self.assertRegex(
+            wallpaper.thumbnail.name,
+            r'^thumbnails/\d{4}/\d{2}/\d{2}/[^/]+$',
+        )
+
+    def test_thumbnail_width_capped_and_ratio_preserved(self):
+        wallpaper = Wallpaper(title='Wide Image', image=make_image_file('wide.png', size=(800, 400)))
+        wallpaper.save()
+
+        from PIL import Image
+        thumb = Image.open(wallpaper.thumbnail.path)
+        self.assertLessEqual(thumb.width, 400)
+        self.assertEqual(thumb.width / thumb.height, 2.0)
+
+    def test_thumbnail_regenerated_when_image_replaced(self):
+        wallpaper = create_wallpaper(title='Replace Image')
+        old_thumb_name = wallpaper.thumbnail.name
+        self.assertTrue(wallpaper.thumbnail.storage.exists(old_thumb_name))
+
+        wallpaper.image = make_image_file('new_image.png', color='green', size=(600, 600))
+        wallpaper.save()
+        wallpaper.refresh_from_db()
+
+        self.assertIsNotNone(wallpaper.thumbnail)
+        self.assertNotEqual(wallpaper.thumbnail.name, old_thumb_name)
+        self.assertFalse(wallpaper.thumbnail.storage.exists(old_thumb_name))
+
+    def test_thumbnail_not_regenerated_when_metadata_only(self):
+        wallpaper = create_wallpaper(title='Metadata Only')
+        thumbnail_name = wallpaper.thumbnail.name
+
+        wallpaper.title = 'Metadata Only Updated'
+        wallpaper.save()
+
+        wallpaper.refresh_from_db()
+        self.assertEqual(wallpaper.thumbnail.name, thumbnail_name)
+
     def test_file_size_populated_automatically(self):
         wallpaper = create_wallpaper(title='Size Check')
         self.assertIsNotNone(wallpaper.file_size)
@@ -93,6 +132,25 @@ class WallpaperModelTests(MediaTestCase):
     def test_resolution_property(self):
         wallpaper = create_wallpaper(title='Resolution Check')
         self.assertEqual(wallpaper.resolution, '1920x1080')
+
+    def test_orientation_auto_detected_landscape(self):
+        wallpaper = create_wallpaper(title='Landscape Orientation', width=2000, height=1000)
+        self.assertEqual(wallpaper.orientation, 'landscape')
+
+    def test_orientation_auto_detected_portrait(self):
+        wallpaper = create_wallpaper(title='Portrait Orientation', width=800, height=1200)
+        self.assertEqual(wallpaper.orientation, 'portrait')
+
+    def test_orientation_auto_detected_square(self):
+        wallpaper = create_wallpaper(title='Square Orientation', width=1000, height=1000)
+        self.assertEqual(wallpaper.orientation, 'square')
+
+    def test_favorites_many_to_many(self):
+        user = create_user(username='favoriter')
+        wallpaper = create_wallpaper(title='Favorited Wallpaper')
+        wallpaper.favorites.add(user)
+        self.assertEqual(user.favorite_wallpapers.count(), 1)
+        self.assertEqual(wallpaper.favorites.count(), 1)
 
     def test_extension_property(self):
         wallpaper = create_wallpaper(title='Extension Check')

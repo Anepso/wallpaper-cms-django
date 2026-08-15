@@ -1,35 +1,47 @@
-### Django ###
+### Python / Django ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Django stuff
-var/logs
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Django
+*.log
 *.pot
-*.pyc
 db.sqlite3
+db.sqlite3-journal
 /backend/staticfiles/
-/backend/media/
+/var/logs/
 
 # Environments
 .env
+.env.*
+.env.local
+.env.development
+.env.production
 .venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
-.env.local
-.env.development
-.env.production
 
 # PostgreSQL credentials (jangan commit ini!)
 *.pgpass
 postgresql/data/
 /pgdata/
 
-### Frontend ###
+### Media ###
+# Abaikan file unggahan, tapi pertahankan folder melalui media/.keep
+backend/media/*
+!backend/media/.keep
+
+### Frontend (Node.js) ###
 # Dependencies
 /node_modules/
 /frontend/node_modules/
@@ -42,24 +54,18 @@ postgresql/data/
 /out/
 .next/
 
-# Cache
-.npm
+# Cache & Logs
 .eslintcache
 .yarn-integrity
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 .pnpm-debug.log*
+npm-debug.log*
+yarn-error.log*
 
-# Editor
+### Editor / OS ###
 .idea/
 .vscode/
 *.swp
 *.swo
 *.sublime-workspace
-
-### Sistem ###
 .DS_Store
 Thumbs.db

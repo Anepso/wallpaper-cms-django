@@ -121,6 +121,7 @@
         <label class="block text-sm font-medium mb-1">Kategori</label>
         <select name="category" id="edit-category"
                 class="w-full border px-3 py-2 rounded focus:outline-none focus:ring">
+          <option value="">Tanpa Kategori</option>
           {% for cat in categories %}
           <option value="{{ cat.id }}">{{ cat.name }}</option>
           {% endfor %}
@@ -167,7 +168,8 @@ function openEditModal(id, title, categoryId) {
   document.getElementById('edit-wallpaper-id').value = id;
   document.getElementById('edit-title').value = title;
   document.getElementById('edit-category').value = categoryId;
-  document.getElementById('editForm').action = `/wallpapers/wallpapers/edit/${id}/`;
+  const baseUrl = "{% url 'wallpapers:edit' 0 %}";
+  document.getElementById('editForm').action = baseUrl.replace(/\/0\/?$/, '/') + id + '/';
   document.getElementById('editModal').classList.remove('hidden');
 }
 

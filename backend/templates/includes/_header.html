@@ -19,6 +19,7 @@
         <a href="{% url 'wallpapers:tentang' %}" class="text-gray-700 hover:text-blue-600 transition">Tentang Kami</a>
 
         {% if user.is_authenticated %}
+          <a href="{% url 'wallpapers:favorites' %}" class="text-gray-700 hover:text-blue-600 transition">Favorit</a>
           <a href="{% url 'users:profile' %}" class="text-gray-700 hover:text-blue-600 transition">Profil</a>
           {% if user.is_staff or user.is_superuser %}
             <a href="{% url 'users:dashboard' %}" class="text-gray-700 hover:text-blue-600 transition">Dashboard</a>
@@ -51,6 +52,7 @@
       <a href="{% url 'wallpapers:list' %}" class="text-gray-700 hover:text-blue-600 transition">Wallpaper</a>
       <a href="{% url 'wallpapers:tentang' %}" class="text-gray-700 hover:text-blue-600 transition">Tentang Kami</a>
       {% if user.is_authenticated %}
+        <a href="{% url 'wallpapers:favorites' %}" class="text-gray-700 hover:text-blue-600 transition">Favorit</a>
         <a href="{% url 'users:profile' %}" class="text-gray-700 hover:text-blue-600 transition">Profil</a>
         {% if user.is_staff or user.is_superuser %}
           <a href="{% url 'users:dashboard' %}" class="text-gray-700 hover:text-blue-600 transition">Dashboard</a>

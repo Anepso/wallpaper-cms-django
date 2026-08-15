@@ -1,133 +1,201 @@
-📁 Struktur Folder Proyek CMS Django
+# Wallpaper CMS
+
+> Content Management System untuk koleksi wallpaper digital — dibangun dengan **Django** dan **Tailwind CSS**, dengan dashboard berbasis role dan fitur interaktif yang lengkap.
+
+![Django](https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white&style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white&style=flat-square)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-4169E1?logo=postgresql&logoColor=white&style=flat-square)
+![SQLite](https://img.shields.io/badge/SQLite-supported-003B57?logo=sqlite&logoColor=white&style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-83%20passed-brightgreen?style=flat-square)
+
+---
+
+## ✨ Deskripsi
 
-🗂️ Root Project Directory
+**Wallpaper CMS** adalah aplikasi web untuk mengelola dan menampilkan koleksi wallpaper. Proyek ini dirancang sebagai CMS modular: pengguna dapat menjelajahi galeri, mencari wallpaper berdasarkan tag/kategori/orientasi, menyimpan favorit, serta mengunduh wallpaper. Admin dapat mengelola seluruh konten melalui dashboard yang responsif.
 
-├── backend/             # Aplikasi backend Django (berisi app modular)
+Proyek ini merupakan hasil audit menyeluruh (perbaikan permission, keamanan, dan bug) serta pengembangan fitur interaktif, dan siap dijadikan portofolio.
 
-├── frontend/            # Project frontend 
+---
 
-├── var/                 # Custom folder (berisi logs, middleware, models)
+## 📸 Screenshot
 
-├── venv/                # Virtual environment Python
+<!--
+  📌 TEMPLATE SCREENSHOT:
+  1. Simpan gambar di folder `screenshots/` (contoh: screenshots/beranda.png).
+  2. Ganti nama file di bawah dengan file Anda.
+  3. Jika belum ada, hapus baris tabel ini atau biarkan sampai Anda menambahkan screenshot.
+-->
 
-├── .env                 # Konfigurasi environment (secrets, DB credentials, dll)
+| Beranda | Detail Wallpaper | Dashboard Admin |
+|:-------:|:----------------:|:---------------:|
+| <img src="screenshots/beranda.png" alt="Halaman Beranda" width="280"> | <img src="screenshots/detail.png" alt="Halaman Detail Wallpaper" width="280"> | <img src="screenshots/dashboard.png" alt="Dashboard Admin" width="280"> |
 
-├── .gitignore           # File untuk mengecualikan file dari Git
+---
 
-├── manage.py            # Entrypoint manajemen Django
+## 🚀 Fitur Utama
 
-├── package.json         # Konfigurasi NPM (frontend/backend)
+**Konten & Galeri**
+- 🖼️ **Bulk Upload** — unggah banyak wallpaper sekaligus dalam satu formulir
+- 🏷️ Tag & Kategori untuk mengelompokkan konten
+- 🔍 **Pencarian Lanjutan** — filter berdasarkan kata kunci, orientasi (Landscape/Portrait/Square), dan rentang waktu
+- 📐 Thumbnail otomatis berkualitas tinggi (LANCZOS, kompresi ringan)
 
-├── package-lock.json    # Lock file dependensi NPM
+**Fitur Interaktif**
+- ❤️ **Bookmark / Favorit** — simpan wallpaper favorit pengguna
+- 📥 **Download Counter** — setiap unduhan terhitung otomatis
+- 🔄 Toggle favorit & regenerasi thumbnail saat gambar diperbarui
 
-├── requirements.txt     # Daftar dependensi Python
+**Admin & Keamanan**
+- 🛡️ **Role-based dashboard** — hak akses berbeda untuk Admin, Staff, dan User biasa
+- 👥 Manajemen pengguna (buat, ban/reactivate)
+- 📊 CRUD lengkap untuk Wallpaper, Kategori, dan Pengguna
+- 🗂️ Penghapusan file media (gambar + thumbnail) secara aman
+- ✅ Validasi upload (ukuran & tipe file)
 
-├── urls.py              # Routing utama Django
+**Tampilan**
+- 🎨 **UI berbasis Tailwind CSS** — modern, responsif, dan mobile-friendly
+- 🌙 Dukungan dark mode pada bagian tertentu
+- ⚡ Halaman cepat berkat thumbnail & `select_related` / `prefetch_related`
 
-└── README.md            # Dokumentasi proyek
+---
 
+## 🛠️ Tech Stack
 
-📁 backend/
-Folder ini menyimpan semua aplikasi (modular apps) untuk Django.
+| Layer      | Teknologi |
+|------------|-----------|
+| Backend    | Python, **Django 5.2** |
+| Frontend   | **Tailwind CSS** (CDN), HTML, JavaScript |
+| Database   | **PostgreSQL** (default) / SQLite (opsional) |
+| ORM & Tools| Django ORM, `django-taggit`, `django-simple-history`, `django-extensions` |
+| API        | Django REST Framework |
+| Media      | Pillow (pembuatan thumbnail & validasi gambar) |
 
-backend/
-├── api/             # API layer (views, serializers, routers, dll)
+---
 
-├── categories/      # Modul manajemen kategori
+## 📁 Struktur Proyek
 
-├── core/            # Konfigurasi utama (settings tambahan)
+```
+wallpaper_cms/
+├── backend/
+│   ├── api/                 # REST API (IsAdminOrReadOnly)
+│   ├── categories/          # Manajemen kategori
+│   ├── core/                # Konfigurasi settings, decorators, view root
+│   ├── seo/                 # Robots.txt & sitemap
+│   ├── templates/           # Template HTML (Tailwind)
+│   ├── users/               # Autentikasi & manajemen pengguna
+│   ├── wallpapers/          # Modul utama: model, upload, search, favorit
+│   ├── media/               # File unggahan (thumbnail otomatis)
+│   └── requirements.txt     # Dependensi Python
+├── frontend/                # Aset & dependensi frontend
+├── .env                     # Konfigurasi environment (JANGAN di-commit)
+└── README.md
+```
 
-├── media/           # Folder untuk menyimpan file media yang diupload
+---
 
-├── seo/             # Modul pengaturan SEO (meta tags, sitemap, dsb)
+## ⚙️ Panduan Instalasi Lokal
 
-├── staticfiles/     # Static file hasil collectstatic (JS, CSS, gambar)
+### Prasyarat
+- Python **3.10+**
+- PostgreSQL **14+** (atau gunakan SQLite)
+- (Opsional) Node.js untuk frontend
 
-├── templates/       # Template HTML Django
+### Langkah 1 — Clone Repository
 
-├── users/           # Modul autentikasi / manajemen pengguna
+```bash
+git clone https://github.com/username/wallpaper_cms.git
+cd wallpaper_cms
+```
 
-├── wallpapers/      # Modul manajemen data wallpaper
+> Ubah `username` sesuai akun GitHub Anda.
 
+### Langkah 2 — Buat & Aktifkan Virtual Environment
 
-📁 frontend/
+```bash
+# Linux / macOS
+python3 -m venv venv
+source venv/bin/activate
 
-frontend/
+# Windows
+python -m venv venv
+venv\Scripts\activate
+```
 
-├── node_modules/        # Direktori dependensi frontend
+### Langkah 3 — Install Dependensi
 
-├── static/              # Static assets frontend (JS, CSS, gambar)
+```bash
+pip install -r backend/requirements.txt
+```
 
-├── package.json         # Konfigurasi proyek frontend
+### Langkah 4 — Konfigurasi Environment
 
-├── package-lock.json    # 
+Buat file `.env` di folder `backend/` (atau sesuaikan `core/settings/base.py`) dengan kredensial database Anda:
 
+```env
+# backend/.env
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+DB_NAME=wallpaper
+DB_USER=postgres
+DB_PASSWORD=your-password
+DB_HOST=localhost
+DB_PORT=5432
+```
 
-📁 var/
+Jika ingin memakai **SQLite**, ubah `DATABASES['default']['ENGINE']` di `core/settings/base.py` menjadi `django.db.backends.sqlite3`.
 
-var/
+### Langkah 5 — Jalankan Migrasi & Server
 
-├── logs/                # Folder untuk file log 
+```bash
+cd backend
 
-├── apps.py              # Custom apps registration 
+# Terapkan skema database
+python manage.py makemigrations
+python manage.py migrate
 
-├── middleware.py        # Custom middleware Django
+# Buat superuser (admin)
+python manage.py createsuperuser
 
-├── models.py            # Model umum/base model
+# Jalankan server pengembangan
+python manage.py runserver
+```
 
+Buka http://127.0.0.1:8000/ di browser. Dashboard admin dapat diakses di http://127.0.0.1:8000/users/dashboard/ (atau `/admin/` bawaan Django).
 
-📁 venv/
+> **Catatan:** jalankan perintah dari folder `backend/` karena `manage.py` berada di sana.
 
-venv/                    # Virtual environment Python
+---
 
+## 🧪 Menjalankan Test
 
-📝 Laporan Proyek
-Nama Proyek: Wallpaper CMS (Content Management System)
-Platform: Django (Backend) + Frontend (JS framework + python)
-Tujuan:
-Membangun sebuah CMS yang memungkinkan pengguna untuk mengelola koleksi wallpaper digital melalui antarmuka berbasis web yang modern dan responsif.
+```bash
+cd backend
+python manage.py test wallpapers categories users seo
+```
 
-🔧 Teknologi yang Digunakan
-Backend: Django 4+
+Suite berisi **83 unit test** yang mencakup model, permission, CRUD admin, upload, dan fitur interaktif.
 
-Modular apps: api, users, wallpapers, categories, core, seo
+---
 
-Manajemen media dan static file
+## 🔐 Keamanan & Best Practices
 
-PostgreSQL
+- Hanya **Admin/Staff** yang dapat mengelola data (`manager_required`)
+- Login wajib untuk halaman admin & dashboard
+- Validasi ukuran (10 MB) & tipe file (JPG/PNG/WEBP) saat upload
+- `SECRET_KEY` dan kredensial disimpan di `.env` (tidak di-commit)
+- Anti decompression bomb saat pembuatan thumbnail
 
-Frontend: JavaScript (Node.js-based, terindikasi dari package.json)
+---
 
-Database: PostgreSQL (dapat dikonfigurasi ulang ke MySQL)
+## 📄 Lisensi
 
-Virtual Environment: venv (Python virtual environment)
+Proyek ini dilisensikan di bawah **MIT License** — lihat file [LICENSE](LICENSE) untuk detail selengkapnya.
 
-Konfigurasi Rahasia: File .env
+---
 
-📁 Struktur Utama
-backend/ – Semua aplikasi Django modular.
-
-frontend/ – Berisi kode antarmuka pengguna (UI).
-
-var/ – Modul tambahan seperti middleware, models, dan log.
-
-staticfiles/ – Output dari collectstatic (untuk deploy).
-
-templates/ – HTML templates untuk Django.
-
-media/ – Penyimpanan file unggahan.
-
-manage.py – Entry point proyek Django.
-
-📌 Fitur-Fitur
-Autentikasi pengguna (users)
-
-Manajemen wallpaper dan kategori (wallpapers, categories)
-
-SEO dan metadata halaman (seo)
-
-REST API (api)
-
-Custom middleware dan model dasar (var/)
-
-Konfigurasi environment tersendiri melalui .env
+<p align="center">
+  Dibuat dengan ❤️ oleh <strong>Arya Nanda Eka Putra</strong> — © 2026
+</p>

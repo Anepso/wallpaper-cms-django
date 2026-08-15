@@ -10,6 +10,7 @@
             <tr>
                 <th class="py-2 px-4 text-left">Username</th>
                 <th class="py-2 px-4 text-left">Email</th>
+                <th class="py-2 px-4 text-left">Peran</th>
                 <th class="py-2 px-4 text-left">Status</th>
                 <th class="py-2 px-4 text-left">Aksi</th>
             </tr>
@@ -20,13 +21,20 @@
                 <td class="py-2 px-4">{{ user.username }}</td>
                 <td class="py-2 px-4">{{ user.email }}</td>
                 <td class="py-2 px-4">
+                    {% if user.role == 'admin' %}
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Admin</span>
+                    {% else %}
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">User</span>
+                    {% endif %}
+                </td>
+                <td class="py-2 px-4">
                     {% if user.is_active %}
                         <span class="text-green-600 font-semibold">Aktif</span>
                     {% else %}
                         <span class="text-red-600 font-semibold">Nonaktif</span>
                     {% endif %}
                 </td>
-                <td class="py-2 px-4 space-x-2">
+                <td class="py-2 px-4">
                     <form action="{% url 'users:toggle-user-status' user.id %}" method="post" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="text-sm text-white px-3 py-1 rounded
@@ -34,13 +42,11 @@
                             {% if user.is_active %}Ban{% else %}Aktifkan{% endif %}
                         </button>
                     </form>
-                    <!-- Optional: Link ke edit profile user -->
-                    <a href="{% url 'users:profile' %}?user_id={{ user.id }}" class="text-sm text-blue-600 hover:underline">Lihat</a>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" class="py-4 text-center text-gray-500">Tidak ada pengguna.</td>
+                <td colspan="5" class="py-4 text-center text-gray-500">Tidak ada pengguna.</td>
             </tr>
             {% endfor %}
         </tbody>

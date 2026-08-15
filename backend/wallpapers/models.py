@@ -9,6 +9,13 @@ import os
 
 app_name = 'wallpapers'
 
+
+class Orientation(models.TextChoices):
+    LANDSCAPE = 'landscape', 'Landscape'
+    PORTRAIT = 'portrait', 'Portrait'
+    SQUARE = 'square', 'Square'
+
+
 class Wallpaper(models.Model):
     history = HistoricalRecords()
     title = models.CharField(
@@ -75,6 +82,20 @@ class Wallpaper(models.Model):
         default=0,
         verbose_name='View Count'
     )
+    orientation = models.CharField(
+        max_length=20,
+        choices=Orientation.choices,
+        default=Orientation.LANDSCAPE,
+        verbose_name='Orientation',
+        help_text='Auto-detected from image dimensions'
+    )
+    favorites = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='favorite_wallpapers',
+        blank=True,
+        verbose_name='Favorited By',
+        help_text='Users who bookmarked this wallpaper'
+    )
     is_premium = models.BooleanField(
         default=False,
         verbose_name='Premium Content',
@@ -110,6 +131,7 @@ class Wallpaper(models.Model):
             models.Index(fields=['is_active']),
             models.Index(fields=['is_premium']),
             models.Index(fields=['created_at']),
+            models.Index(fields=['orientation']),
         ]
 
     def __str__(self):
@@ -125,45 +147,107 @@ class Wallpaper(models.Model):
                 counter += 1
             self.slug = slug
 
-        if self.image and not self.file_size:
-            self.file_size = self.image.size
+        # Deteksi orientasi otomatis dari dimensi gambar
+        if self.width and self.height:
+            if self.width > self.height:
+                self.orientation = Orientation.LANDSCAPE
+            elif self.width < self.height:
+                self.orientation = Orientation.PORTRAIT
+            else:
+                self.orientation = Orientation.SQUARE
+
+        # Deteksi apakah gambar baru/berubah (untuk update file_size & thumbnail)
+        is_new = self._state.adding
+        old_image_name = None
+        if not is_new:
+            try:
+                old_image_name = Wallpaper.objects.filter(pk=self.pk).values_list('image', flat=True).first()
+            except Exception:
+                old_image_name = None
+
+        image_changed = False
+        if self.image:
+            image_changed = is_new or self.image.name != old_image_name
+            if image_changed:
+                self.file_size = self.image.size
 
         super().save(*args, **kwargs)
 
-        if self.image and not self.thumbnail:
+        # Regenerasi thumbnail jika gambar baru atau diganti.
+        # Thumbnail lama hanya dihapus jika thumbnail baru berhasil dibuat.
+        if self.image and image_changed:
+            old_thumbnail_name = self.thumbnail.name if self.thumbnail else None
+            self.thumbnail = None
             if self.generate_thumbnail():
+                if old_thumbnail_name:
+                    try:
+                        self.thumbnail.storage.delete(old_thumbnail_name)
+                    except Exception:
+                        pass
                 self.save(update_fields=['thumbnail'])
 
 
     def generate_thumbnail(self):
+        """Buat thumbnail berkualitas tinggi, proporsional, dan ringan.
+
+        - Lebar maksimal MAX_THUMB_WIDTH px, tinggi menyesuaikan (rasio aspek terjaga).
+        - Resampling LANCZOS untuk hasil tajam.
+        - Kompresi optimal per format (JPEG quality=85, PNG optimize, WEBP quality=85).
+        - Disimpan rapi di `thumbnails/%Y/%m/%d/<nama>_thumb.<ext>`.
+        """
         from PIL import Image, UnidentifiedImageError
         from io import BytesIO
         from django.core.files.base import ContentFile
 
-        try:
-            image = Image.open(self.image)
-            image = image.convert('RGB')
-            image.thumbnail((300, 300))
+        # Batas aman: cegah decompression bomb / OOM pada gambar raksasa
+        MAX_IMAGE_PIXELS = 60_000_000  # 60MP
+        MAX_THUMB_WIDTH = 400
 
-            thumb_name, thumb_extension = os.path.splitext(self.image.name)
-            thumb_extension = thumb_extension.lower()
-            thumb_filename = thumb_name + '_thumb' + thumb_extension
-
-            FTYPE = 'JPEG' if thumb_extension in ['.jpg', '.jpeg'] else 'PNG'
-
-            temp_thumb = BytesIO()
-            image.save(temp_thumb, FTYPE)
-            temp_thumb.seek(0)
-
-            self.thumbnail.save(thumb_filename, ContentFile(temp_thumb.read()), save=False)
-            temp_thumb.close()
-            return True
-
-        except UnidentifiedImageError:
-            print("Thumbnail generation failed: UnidentifiedImageError")
+        if not self.image or not self.image.name:
             return False
-        except Exception as e:
-            print(f"[ERROR THUMBNAIL] {e}")
+
+        try:
+            if not self.image.storage.exists(self.image.name):
+                return False
+
+            with Image.open(self.image) as img:
+                if img.width * img.height > MAX_IMAGE_PIXELS:
+                    return False
+
+                img = img.convert('RGB')
+
+                if img.width > MAX_THUMB_WIDTH:
+                    new_height = max(1, round(img.height * MAX_THUMB_WIDTH / img.width))
+                    img = img.resize((MAX_THUMB_WIDTH, new_height), Image.Resampling.LANCZOS)
+                else:
+                    # Gambar kecil: jangan diperbesar, cukup pastikan terbaca penuh
+                    img.load()
+
+                # Pilih format output sesuai ekstensi asli
+                ext = os.path.splitext(self.image.name)[1].lower()
+                if ext in ('.jpg', '.jpeg'):
+                    ftype, save_kwargs, out_ext = 'JPEG', {'quality': 85, 'optimize': True, 'progressive': True}, 'jpg'
+                elif ext == '.webp':
+                    ftype, save_kwargs, out_ext = 'WEBP', {'quality': 85}, 'webp'
+                elif ext == '.png':
+                    ftype, save_kwargs, out_ext = 'PNG', {'optimize': True}, 'png'
+                else:
+                    ftype, save_kwargs, out_ext = 'JPEG', {'quality': 85, 'optimize': True, 'progressive': True}, 'jpg'
+
+                buffer = BytesIO()
+                img.save(buffer, ftype, **save_kwargs)
+                buffer.seek(0)
+
+                base_name = os.path.splitext(os.path.basename(self.image.name))[0]
+                # upload_to='thumbnails/%Y/%m/%d/' otomatis menambahkan tanggal
+                thumb_filename = f'{base_name}_thumb.{out_ext}'
+
+                self.thumbnail.save(thumb_filename, ContentFile(buffer.read()), save=False)
+                buffer.close()
+                return True
+
+        except (UnidentifiedImageError, OSError, ValueError, KeyError):
+            return False
 
     def get_absolute_url(self):
         return reverse('wallpapers:detail', kwargs={'slug': self.slug})

@@ -134,9 +134,12 @@
 
           <!-- Logout -->
           <li class="mt-6">
-            <a href="{% url 'users:logout' %}" class="flex items-center text-red-600 hover:underline">
-              <span class="material-icons mr-2">logout</span> Logout
-            </a>
+            <form method="post" action="{% url 'users:logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="flex items-center text-red-600 hover:underline">
+                <span class="material-icons mr-2">logout</span> Logout
+              </button>
+            </form>
           </li>
         </ul>
       </nav>

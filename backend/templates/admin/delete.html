@@ -17,8 +17,10 @@
         <div class="p-6">
             <div class="mb-6 text-center">
                 <div class="relative mx-auto w-64 h-48 overflow-hidden rounded-lg shadow-sm border border-gray-200 mb-4">
+                    {% if object.image %}
                     <img src="{{ object.image.url }}" alt="{{ object.title }}" 
                          class="absolute inset-0 w-full h-full object-cover">
+                    {% endif %}
                 </div>
                 <p class="text-gray-700 mb-2">Anda akan menghapus wallpaper:</p>
                 <h3 class="text-lg font-semibold text-gray-900">{{ object.title }}</h3>
@@ -45,18 +47,14 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="flex justify-between pt-4 border-t border-gray-200">
-                    <a href="{% url 'wallpapers:detail' object.slug %}" 
+                    <a href="{% url 'wallpapers:wallpaper_admin_list' %}" 
                        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
-                        Kembali ke Detail
+                        Kembali ke Daftar
                     </a>
                     <div class="space-x-3">
-                        <a href="{% url 'wallpapers:list' %}" 
-                           class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
-                            Batal
-                        </a>
                         <button type="submit" 
                                 class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition flex items-center">
                             <svg class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

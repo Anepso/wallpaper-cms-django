@@ -17,13 +17,16 @@ urlpatterns = [
     path('admin/wallpaper_list/', WallpaperAdminListView.as_view(), name='wallpaper_admin_list'),
     path('admin/add/', add_wallpaper, name='add'),
     path('admin/upload/', wallpaper_upload, name='upload'),
-    path('wallpapers/edit/<int:pk>/', views.update_wallpaper, name='edit'),
+    path('edit/<int:pk>/', views.update_wallpaper, name='edit'),
     path('category/<slug:slug>/', views.wallpapers_by_category, name='category'),
     
     path('delete/<int:pk>/', views.wallpaper_delete, name='delete'),
     path('delete-multiple/', views.delete_multiple_wallpapers, name='delete_multiple'),
 
-    
+    path('toggle-favorite/<slug:slug>/', views.toggle_favorite, name='toggle_favorite'),
+    path('download/<slug:slug>/', views.download_wallpaper, name='download'),
+    path('favorit/', views.favorite_wallpapers, name='favorites'),
+
     path('<slug:slug>/', views.wallpaper_detail, name='detail'),
 ]
 
