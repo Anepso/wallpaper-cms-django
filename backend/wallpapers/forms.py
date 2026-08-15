@@ -4,7 +4,7 @@ from categories.models import Category
 from taggit.forms import TagField
 
 class WallpaperForm(forms.ModelForm):
-    tags = TagField(label="Tags", help_text="Pisahkan tag dengan koma")
+    tags = TagField(label="Tags", help_text="Pisahkan tag dengan koma", required=False)
 
     class Meta:
         model = Wallpaper

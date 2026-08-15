@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView
@@ -15,7 +16,7 @@ User = get_user_model()
 
 class WallpaperListView(ListView):
     model = Wallpaper
-    template_name = 'wallpapers/list.html'
+    template_name = 'wallpapers/wallpaper_list.html'
     context_object_name = 'wallpapers'
     paginate_by = 20
     
@@ -83,21 +84,71 @@ def search_wallpapers(request):
         'wallpapers': wallpapers,
     })
 
-@login_required
-def wallpaper_upload(request):
-    if request.method == 'POST':
-        form = WallpaperForm(request.POST, request.FILES)
+def _process_upload(request):
+    """Proses semua file yang diunggah (satu atau banyak sekaligus).
+
+    Mengembalikan tuple (success_count, failed_count), atau None jika tidak
+    ada file yang diunggah.
+    """
+    images = request.FILES.getlist('image')
+    if not images:
+        return None
+
+    title_input = request.POST.get('title', '').strip()
+    success_count = 0
+    failed_count = 0
+
+    for index, image in enumerate(images):
+        data = request.POST.copy()
+        data.setdefault('description', '')
+        data.setdefault('width', '1920')
+        data.setdefault('height', '1080')
+        base_title = os.path.splitext(image.name)[0].replace('_', ' ').replace('-', ' ').strip() or f'Wallpaper {index + 1}'
+
+        if len(images) == 1:
+            data['title'] = title_input or base_title
+        elif title_input:
+            data['title'] = f'{title_input} {index + 1}'
+        else:
+            data['title'] = base_title
+
+        form = WallpaperForm(data, {'image': image})
         if form.is_valid():
             wallpaper = form.save(commit=False)
             wallpaper.uploader = request.user
-            wallpaper.is_active = True  # PENTING
+            wallpaper.is_active = True
             wallpaper.save()
             form.save_m2m()
-            print(f"[DEBUG] Wallpaper disimpan: {wallpaper.title}, is_active={wallpaper.is_active}")
-            messages.success(request, 'Wallpaper berhasil diupload!')
-            return redirect('wallpapers:admin_list')
+            success_count += 1
         else:
-            print('[DEBUG] request.FILES:', request.FILES)
+            failed_count += 1
+
+    return success_count, failed_count
+
+@login_required
+def wallpaper_upload(request):
+    if request.method == 'POST':
+        result = _process_upload(request)
+        if result is not None:
+            success_count, failed_count = result
+            if success_count:
+                messages.success(request, f'{success_count} wallpaper berhasil diupload!')
+            if failed_count:
+                messages.error(request, f'{failed_count} wallpaper gagal diupload.')
+            return redirect('wallpapers:wallpaper_admin_list')
+        else:
+            form = WallpaperForm(request.POST, request.FILES)
+            if form.is_valid():
+                wallpaper = form.save(commit=False)
+                wallpaper.uploader = request.user
+                wallpaper.is_active = True
+                wallpaper.save()
+                form.save_m2m()
+                print(f"[DEBUG] Wallpaper disimpan: {wallpaper.title}, is_active={wallpaper.is_active}")
+                messages.success(request, 'Wallpaper berhasil diupload!')
+                return redirect('wallpapers:wallpaper_admin_list')
+            else:
+                print('[DEBUG] request.FILES:', request.FILES)
 
     else:
         form = WallpaperForm()
@@ -113,27 +164,36 @@ def wallpaper_upload(request):
 def add_wallpaper(request):
     categories = Category.objects.all().order_by('name')
     if request.method == 'POST':
-        form = WallpaperForm(request.POST, request.FILES)
-        if form.is_valid():
-            wallpaper = form.save(commit=False)
-            wallpaper.uploader = request.user
-            wallpaper.is_active = True
-            wallpaper.save()
-            form.save_m2m()
-            messages.success(request, 'Wallpaper berhasil ditambahkan!')
-            return redirect('wallpapers:admin_list')  # Pastikan URL ini ada dan mengarah ke WallpaperListView
+        result = _process_upload(request)
+        if result is not None:
+            success_count, failed_count = result
+            if success_count:
+                messages.success(request, f'{success_count} wallpaper berhasil ditambahkan!')
+            if failed_count:
+                messages.error(request, f'{failed_count} wallpaper gagal diupload.')
+            return redirect('wallpapers:wallpaper_admin_list')
         else:
-            messages.error(request, 'Ada kesalahan dalam form. Silakan periksa kembali.')
+            form = WallpaperForm(request.POST, request.FILES)
+            if form.is_valid():
+                wallpaper = form.save(commit=False)
+                wallpaper.uploader = request.user
+                wallpaper.is_active = True
+                wallpaper.save()
+                form.save_m2m()
+                messages.success(request, 'Wallpaper berhasil ditambahkan!')
+                return redirect('wallpapers:wallpaper_admin_list')
+            else:
+                messages.error(request, 'Ada kesalahan dalam form. Silakan periksa kembali.')
     else:
         form = WallpaperForm()
 
-    return render(request, 'admin/add.html', {
+    return render(request, 'admin/upload.html', {
         'form': form,
         'categories': categories
     })
 
 @login_required
-def update_wallpaper(request):
+def update_wallpaper(request, pk):
     if request.method == "POST":
         wallpaper_id = request.POST.get("wallpaper_id")
         wallpaper = get_object_or_404(Wallpaper, id=wallpaper_id)
@@ -165,7 +225,7 @@ def delete_multiple_wallpapers(request):
         wallpapers.delete()
         
         messages.success(request, f'{count} wallpaper berhasil dihapus!')
-    return redirect('wallpapers:admin_list')
+    return redirect('wallpapers:wallpaper_admin_list')
 
 @login_required
 def wallpaper_delete(request, pk):
@@ -176,9 +236,9 @@ def wallpaper_delete(request, pk):
         wallpaper.image.delete()  # Hapus file gambar dari storage
         wallpaper.delete()       # Hapus record dari database
         messages.success(request, f'Wallpaper "{wallpaper_title}" berhasil dihapus!')
-        return redirect('admin:list')
+        return redirect('wallpapers:wallpaper_admin_list')
     
-    return render(request, 'admin/delete_confirm.html', {
+    return render(request, 'admin/delete.html', {
         'object': wallpaper,
         'title': 'Hapus Wallpaper'
     })
