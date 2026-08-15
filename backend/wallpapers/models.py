@@ -131,7 +131,8 @@ class Wallpaper(models.Model):
         super().save(*args, **kwargs)
 
         if self.image and not self.thumbnail:
-            self.generate_thumbnail()
+            if self.generate_thumbnail():
+                self.save(update_fields=['thumbnail'])
 
 
     def generate_thumbnail(self):

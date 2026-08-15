@@ -3,7 +3,7 @@ from django.db import models
 import os
 
 def profile_image_upload_path(instance, filename):
-    # Upload ke: media/profile_images/user_<id>/<filename>
+
     return os.path.join('profile_images', f'user_{instance.id}', filename)
 
 class CustomUser(AbstractUser):

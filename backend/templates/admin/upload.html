@@ -4,6 +4,7 @@
 {% block content %}
 <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-2xl">
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Upload Wallpaper Baru</h1>
+    <div class="bg-white rounded-xl shadow-md p-6">
     <form method="post" enctype="multipart/form-data" class="space-y-6">
         {% csrf_token %}
         
@@ -93,11 +94,15 @@
             </button>
         </div>
     </form>
+    </div>
 </div>
 
 <!-- Image Preview Script -->
 <script>
-document.getElementById('id_image').addEventListener('change', function(e) {
+document.addEventListener('DOMContentLoaded', function () {
+  const fileInput = document.getElementById('id_image');
+  if (!fileInput) return;
+  fileInput.addEventListener('change', function(e) {
     const previewContainer = document.getElementById('image-preview');
     const files = Array.from(e.target.files);
     previewContainer.innerHTML = '';
@@ -111,6 +116,7 @@ document.getElementById('id_image').addEventListener('change', function(e) {
         grid.appendChild(preview);
     });
     previewContainer.appendChild(grid);
+  });
 });
 </script>
 {% endblock %}

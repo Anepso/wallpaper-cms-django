@@ -2,12 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 from wallpapers.models import Wallpaper
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
+from core.decorators import manager_required
 
 User = get_user_model()
 
@@ -20,15 +21,13 @@ def login_redirect(request):
     if request.user.is_staff or request.user.is_superuser:
         return redirect('users:dashboard')
     
-    # User biasa ke home (pastikan URL 'wallpapers:home' ada)
+    # User biasa ke home 
     return redirect('wallpapers:home')
 
-@user_passes_test(lambda u: u.is_superuser or u.role == 'admin')
-@login_required
+@manager_required
 def toggle_user_status(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     
-    # Tidak boleh banned diri sendiri
     if request.user == user:
         messages.warning(request, "Anda tidak dapat mengubah status akun Anda sendiri.")
         return redirect('users:user-list')
@@ -40,24 +39,13 @@ def toggle_user_status(request, user_id):
     messages.success(request, f"Akun {user.username} berhasil {status}.")
     return redirect('users:user-list')
 
-@login_required
+@manager_required
 def dashboard(request):
-    try:
-        print("Masuk ke view dashboard")
-        context = {
-            'total_wallpapers': Wallpaper.objects.count(),
-            'total_users': User.objects.count()
-        }
-        return render(request, 'admin/dashboard.html', context)
-    except Exception as e:
-        print(f"Error di dashboard: {e}")
-        messages.error(request, f"Error loading dashboard: {str(e)}")
-        return redirect('home')
-
-@login_required
-def home(request):
-    wallpapers = Wallpaper.objects.order_by('-created_at')[:10]
-    return render(request, 'home.html', {'latest_wallpapers': wallpapers})
+    context = {
+        'total_wallpapers': Wallpaper.objects.count(),
+        'total_users': User.objects.count()
+    }
+    return render(request, 'admin/dashboard.html', context)
 
 def register(request):
     if request.user.is_authenticated:
@@ -122,12 +110,12 @@ def user_list(request):
     users = User.objects.all()
     return render(request, 'users/user_list.html', {'users': users})
 
-# Tambah pengguna (dummy, sesuaikan implementasi)
+# Tambah pengguna
 @staff_member_required
 def user_add(request):
     return render(request, 'users/user_add.html')
 
-# Daftar pengguna yang diblokir (is_active=False)
+# Daftar pengguna yang diblokir
 @staff_member_required
 def user_banned(request):
     banned_users = User.objects.filter(is_active=False)

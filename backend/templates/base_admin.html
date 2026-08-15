@@ -14,8 +14,23 @@
 <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
   <div class="flex min-h-screen">
 
+    <!-- Backdrop untuk mobile -->
+    <div id="sidebar-backdrop" class="hidden md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"></div>
+
+    <!-- Tombol hamburger (mobile) -->
+    <button id="sidebar-toggle" type="button"
+            class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow text-gray-700 dark:text-gray-200"
+            aria-label="Buka menu">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
     <!-- Sidebar -->
-    <aside class="w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex flex-col items-center py-6 space-y-6">
+    <aside id="sidebar"
+           class="w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex flex-col items-center py-6 space-y-6
+                  fixed md:static inset-y-0 left-0 z-40 h-screen md:h-auto overflow-y-auto
+                  -translate-x-full md:translate-x-0 transition-transform duration-300">
       
       <!-- Logo -->
       <div class="text-xl font-bold tracking-wide text-blue-600">PANEL ADMIN</div>
@@ -128,9 +143,31 @@
     </aside>
 
     <!-- Konten Utama -->
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-6 pt-16 md:pt-6">
+      {% include "includes/_messages.html" %}
       {% block content %}{% endblock %}
     </main>
   </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var sidebar = document.getElementById('sidebar');
+    var toggle = document.getElementById('sidebar-toggle');
+    var backdrop = document.getElementById('sidebar-backdrop');
+
+    function open() {
+      sidebar.classList.remove('-translate-x-full');
+      backdrop.classList.remove('hidden');
+    }
+
+    function close() {
+      sidebar.classList.add('-translate-x-full');
+      backdrop.classList.add('hidden');
+    }
+
+    if (toggle) toggle.addEventListener('click', open);
+    if (backdrop) backdrop.addEventListener('click', close);
+  });
+  </script>
 </body>
 </html>

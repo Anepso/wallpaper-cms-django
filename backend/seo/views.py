@@ -14,5 +14,6 @@ class WallpaperSitemap(Sitemap):
         return f"/wallpapers/{obj.slug}/"
     
 def robots_txt(request):
-    content = "User-Agent: *\nDisallow:\nSitemap: http://127.0.0.1:8000/sitemap.xml"
+    sitemap_url = request.build_absolute_uri('/sitemap.xml')
+    content = f"User-Agent: *\nDisallow:\nSitemap: {sitemap_url}"
     return HttpResponse(content, content_type="text/plain")

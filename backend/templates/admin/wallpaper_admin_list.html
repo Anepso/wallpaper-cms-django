@@ -7,8 +7,8 @@
 <!-- Filter & Search -->
 <form method="get" class="mb-6 flex flex-wrap gap-2 items-center">
   <input type="text" name="q" placeholder="Cari wallpaper..." value="{{ request.GET.q }}"
-         class="border p-2 rounded w-full sm:w-auto flex-1">
-  <select name="category" class="border p-2 rounded w-full sm:w-auto">
+         class="border p-2 rounded w-full sm:w-auto flex-1 bg-white dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600">
+  <select name="category" class="border p-2 rounded w-full sm:w-auto bg-white dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600">
     <option value="">Semua Kategori</option>
     {% for cat in categories %}
       <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>

@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party Apps
+    'simple_history',
     'taggit',
     'rest_framework',
     'django_extensions',
@@ -181,6 +182,7 @@ STATIC_URL = '/static/'
 # Untuk development
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core/static'),
+    os.path.join(BASE_DIR.parent, 'frontend', 'static'),
 ]
 
 # Untuk production

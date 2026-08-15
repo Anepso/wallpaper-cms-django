@@ -5,6 +5,7 @@ from .models import Category
 from .forms import CategoryForm
 from wallpapers.models import Wallpaper
 from django.db import connection
+from core.decorators import manager_required
 
 class CategoryListView(ListView):
     model = Category
@@ -13,6 +14,7 @@ class CategoryListView(ListView):
     paginate_by = 12
     ordering = ['name']
 
+@manager_required
 def add_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST, request.FILES)
@@ -32,12 +34,13 @@ def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     wallpapers = Wallpaper.objects.filter(category=category).order_by('-created_at')
     
-    return render(request, 'categories/detail.html', {
+    return render(request, 'categories/category_detail.html', {
         'category': category,
         'wallpapers': wallpapers,
         'title': f'Kategori {category.name}'
     })
 
+@manager_required
 def edit_category(request, slug):
     category = get_object_or_404(Category, slug=slug)
     if request.method == 'POST':
@@ -49,12 +52,13 @@ def edit_category(request, slug):
     else:
         form = CategoryForm(instance=category)
     
-    return render(request, 'categories/add.html', {
+    return render(request, 'categories/add_category.html', {
         'form': form,
         'title': 'Edit Kategori',
         'edit_mode': True
     })
 
+@manager_required
 def delete_category(request, slug):
     category = get_object_or_404(Category, slug=slug)
     

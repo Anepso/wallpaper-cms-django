@@ -4,13 +4,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Wallpaper
 from .forms import WallpaperForm
 from categories.models import Category
-from django.views.decorators.http import require_POST
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Count
+from core.decorators import is_manager, manager_required
 
 User = get_user_model() 
 
@@ -49,10 +48,15 @@ class WallpaperAdminListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     paginate_by = 10
 
     def test_func(self):
-        return self.request.user.is_staff or getattr(self.request.user, 'role', None) == 'admin'
+        return is_manager(self.request.user)
 
     def get_queryset(self):
         return Wallpaper.objects.all().order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all().order_by('name')
+        return context
 
 def home(request):
     # Ambil semua wallpaper yang aktif (tanpa membatasi siapa pengunggahnya)
@@ -71,13 +75,15 @@ def home(request):
     })
 
 def search_wallpapers(request):
-    query = request.GET.get('q')
-    wallpapers = Wallpaper.objects.filter(
-        Q(title__icontains=query) | 
-        Q(description__icontains=query) | 
-        Q(tags__name__icontains=query),
-        is_active=True
-    ).distinct()
+    query = request.GET.get('q', '').strip()
+    wallpapers = Wallpaper.objects.none()
+    if query:
+        wallpapers = Wallpaper.objects.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(tags__name__icontains=query),
+            is_active=True
+        ).distinct()
     
     return render(request, 'wallpapers/search_results.html', {
         'query': query,
@@ -125,7 +131,7 @@ def _process_upload(request):
 
     return success_count, failed_count
 
-@login_required
+@manager_required
 def wallpaper_upload(request):
     if request.method == 'POST':
         result = _process_upload(request)
@@ -144,11 +150,10 @@ def wallpaper_upload(request):
                 wallpaper.is_active = True
                 wallpaper.save()
                 form.save_m2m()
-                print(f"[DEBUG] Wallpaper disimpan: {wallpaper.title}, is_active={wallpaper.is_active}")
                 messages.success(request, 'Wallpaper berhasil diupload!')
                 return redirect('wallpapers:wallpaper_admin_list')
             else:
-                print('[DEBUG] request.FILES:', request.FILES)
+                messages.error(request, 'Ada kesalahan dalam form. Silakan periksa kembali.')
 
     else:
         form = WallpaperForm()
@@ -160,7 +165,7 @@ def wallpaper_upload(request):
         'categories': categories
     })
 
-@login_required
+@manager_required
 def add_wallpaper(request):
     categories = Category.objects.all().order_by('name')
     if request.method == 'POST':
@@ -218,7 +223,7 @@ def delete_multiple_wallpapers(request):
         
         # Filter berdasarkan permission
         wallpapers = Wallpaper.objects.filter(id__in=selected_ids)
-        if not request.user.is_staff and request.user.role != 'admin':
+        if not is_manager(request.user):
             wallpapers = wallpapers.filter(uploader=request.user)
             
         count = wallpapers.count()
@@ -230,7 +235,11 @@ def delete_multiple_wallpapers(request):
 @login_required
 def wallpaper_delete(request, pk):
     wallpaper = get_object_or_404(Wallpaper, pk=pk)
-    
+
+    if request.user != wallpaper.uploader and not is_manager(request.user):
+        messages.error(request, "Anda tidak memiliki izin untuk menghapus wallpaper ini.")
+        return redirect('wallpapers:wallpaper_admin_list')
+
     if request.method == 'POST':
         wallpaper_title = wallpaper.title
         wallpaper.image.delete()  # Hapus file gambar dari storage
@@ -255,7 +264,7 @@ def explore(request, slug=None):
     })
 
 def wallpaper_detail(request, slug):
-    wallpaper = get_object_or_404(Wallpaper, slug=slug)
+    wallpaper = get_object_or_404(Wallpaper, slug=slug, is_active=True)
     return render(request, 'wallpapers/detail.html', {'wallpaper': wallpaper})
 
 def wallpapers_by_category(request, slug):

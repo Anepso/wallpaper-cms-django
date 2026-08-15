@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center mb-6">
-        <a href="{% url 'wallpapers:categories' %}" class="text-blue-600 hover:underline mr-4">← All Categories</a>
+        <a href="{% url 'categories:list' %}" class="text-blue-600 hover:underline mr-4">← All Categories</a>
         <h1 class="text-3xl font-bold">{{ category.name }}</h1>
     </div>
     

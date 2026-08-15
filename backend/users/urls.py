@@ -2,15 +2,10 @@ from django.urls import path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from . import views
-from django.conf import settings
-from django.conf.urls.static import static
 
 app_name = 'users'
 
 urlpatterns = [
-    # Home Page
-    path('', views.home, name='home'),
-
     # Login & Logout
     path('login/', views.custom_login, name='login'),
     
@@ -58,4 +53,4 @@ urlpatterns = [
     path('admin/users/banned/', views.user_banned, name='user-banned'),
     path('admin/users/<int:user_id>/toggle/', views.toggle_user_status, name='toggle-user-status'),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
