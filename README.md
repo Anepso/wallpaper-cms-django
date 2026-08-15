@@ -22,16 +22,10 @@ Proyek ini merupakan hasil audit menyeluruh (perbaikan permission, keamanan, dan
 
 ## 📸 Screenshot
 
-<!--
-  📌 TEMPLATE SCREENSHOT:
-  1. Simpan gambar di folder `screenshots/` (contoh: screenshots/beranda.png).
-  2. Ganti nama file di bawah dengan file Anda.
-  3. Jika belum ada, hapus baris tabel ini atau biarkan sampai Anda menambahkan screenshot.
--->
 
 | Beranda | Detail Wallpaper | Dashboard Admin |
 |:-------:|:----------------:|:---------------:|
-| <img src="screenshots/beranda.png" alt="Halaman Beranda" width="280"> | <img src="screenshots/detail.png" alt="Halaman Detail Wallpaper" width="280"> | <img src="screenshots/dashboard.png" alt="Dashboard Admin" width="280"> |
+| <img src="beranda.png" alt="Halaman Beranda" width="280"> | <img src="detail-wallpaper.png" alt="Halaman Detail Wallpaper" width="280"> | <img src="dashboard.png" alt="Dashboard Admin" width="280"> |
 
 ---
 
